@@ -1,0 +1,95 @@
+/* Estilos para a timeline */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    padding: 15px;
+    border-left: 2px solid var(--bs-gray-300);
+    margin-left: 20px;
+    position: relative;
+    margin-bottom: 15px;
+    background-color: var(--bs-light);
+    border-radius: 0.5rem;
+}
+
+.timeline-item::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: absolute;
+    left: -7px;
+    top: 20px;
+}
+
+.timeline-item.presente::before {
+    background-color: var(--bs-success);
+}
+
+.timeline-item.ausente::before {
+    background-color: var(--bs-danger);
+}
+
+.timeline-date {
+    font-size: 0.85rem;
+    color: var(--bs-gray-600);
+    margin-bottom: 5px;
+}
+
+.timeline-content {
+    margin-left: 10px;
+}
+
+/* Estilos para a tabela de presença */
+.table th {
+    background-color: var(--bs-light);
+    font-weight: 600;
+}
+
+.btn-group .btn-outline-success:hover,
+.btn-group .btn-check:checked + .btn-outline-success {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+    color: white;
+}
+
+.btn-group .btn-outline-danger:hover,
+.btn-group .btn-check:checked + .btn-outline-danger {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+    color: white;
+}
+
+/* Estilos para o cabeçalho da sala */
+.sala-header {
+    background-color: var(--bs-light);
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.sala-info {
+    color: var(--bs-gray-600);
+}
+
+.sala-info i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Estilos para a lista de alunos */
+.list-group-item {
+    border: none;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: var(--bs-light);
+}
+
+.list-group-item i {
+    color: var(--primary-color);
+}

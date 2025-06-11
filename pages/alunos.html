@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title data-i18n="menu_title">Gestão de Alunos - ONG Novo Amanhã</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../css/config-styles.css" rel="stylesheet"/>
+<link href="../css/global.css" rel="stylesheet"/>
+<link href="../css/navbar.css" rel="stylesheet"/>
+<link href="../css/cards.css" rel="stylesheet"/>
+<link href="../css/background-pattern.css" rel="stylesheet"/>
+<link href="../css/themes.css" rel="stylesheet"/>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Firebase Module -->
+    <script type="module" src="../js/firebase-alunos.js"></script>
+    <!-- Translations -->
+    <script src="../js/translations.js"></script>
+    <!-- Settings Manager -->
+    <script src="../js/settings.js"></script>
+    <!-- Session Timeout -->
+    <script src="../js/session-timeout.js"></script>
+    <!-- Main Script -->
+    <script type="module" src="../js/alunos.js"></script>
+<style>
+/* Cores e estilos gerais */
+:root {
+    --purple: #663399;
+    --yellow: #FFE066;
+    --success: #28a745;
+    --info: #17a2b8;
+}
+
+.bg-purple { background-color: var(--purple) !important; }
+.bg-yellow { background-color: var(--yellow) !important; }
+.border-purple { border-color: var(--purple) !important; }
+.border-yellow { border-color: var(--yellow) !important; }
+
+/* Estilos do card */
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-top-left-radius: 15px !important;
+    border-top-right-radius: 15px !important;
+    padding: 1rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Campos de formulário */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 0.2rem rgba(102,51,153,0.25);
+}
+
+textarea.form-control {
+    resize: none;
+}
+
+/* Labels */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-label.required:after {
+    content: '*';
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-matriculado { background-color: #d4edda; color: #155724; }
+.status-inativo { background-color: #f8f9fa; color: #6c757d; }
+.status-cancelado { background-color: #f8d7da; color: #721c24; }
+.status-formado { background-color: #cce5ff; color: #004085; }
+.status-aguardando { background-color: #fff3cd; color: #856404; }
+
+/* Botões */
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--purple);
+    border-color: var(--purple);
+}
+
+.btn-primary:hover {
+    background-color: #552b80;
+    border-color: #552b80;
+}
+
+/* Ícones */
+.bi {
+    margin-right: 0.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .row > * {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+</head>
+<body>
+<!-- Elementos decorativos de fundo -->
+<div class="bg-pattern"></div>
+<div class="top-gradient"></div>
+<div class="decoration-circle circle-1"></div>
+<div class="decoration-circle circle-2"></div>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow" style="background-color: var(--primary-color);">
+    <div class="container-fluid">
+            <a class="navbar-brand" href="#" style="display: flex; align-items: center; gap: 10px;">
+                <i class="bi bi-box-seam"></i>
+                <span class="h5 mb-0" data-i18n="platform_name">Beta - Plataforma de Gestão</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="menu.html" class="btn btn-outline-light me-3">
+                    <i class="bi bi-house-door"></i>
+                    Início
+                </a>
+                <div class="dropdown">
+                    <div class="user-profile" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="avatar" id="userAvatar">UT</div>
+                        <div class="user-info">
+                            <span class="user-name" id="userName" data-i18n="user_name">Usuário</span>
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
+                        </div>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userProfileDropdown">
+                        <li>
+                            <div class="dropdown-header">
+                                <div class="avatar-small" id="userAvatarSmall">UT</div>
+                                <div class="header-info">
+                                    <span class="header-name" id="userNameFull" data-i18n="user_full_name">Usuário</span>
+                                    <span class="header-email" id="userEmail" data-i18n="user_email">usuario@email.com</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="perfil.html" title="Visualizar e editar seu perfil">
+                                <i class="bi bi-person-circle"></i>
+                                <div class="item-content">
+                                    <span class="item-title" data-i18n="profile">Perfil</span>
+                                    <span class="item-description" data-i18n="view_edit_profile">Visualizar e editar suas informações</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="configuracoes.html" title="Ajustar configurações do sistema">
+                                <i class="bi bi-gear"></i>
+                                <div class="item-content">
+                                    <span class="item-title" data-i18n="settings">Configurações</span>
+                                    <span class="item-description" data-i18n="customize_experience">Personalizar sua experiência</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item logout-item" href="javascript:void(0)" id="btnLogout" title="Sair do sistema">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <div class="item-content">
+                                    <span class="item-title" data-i18n="logout">Sair</span>
+                                    <span class="item-description" data-i18n="end_session">Encerrar sessão</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5 mt-5">
+    <!-- Cabeçalho com título e botão novo aluno -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            <i class="bi bi-people-fill me-2"></i>
+            Gestão de Alunos
+        </h1>
+        <button class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#modalAluno">
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Novo Aluno
+        </button>
+    </div>
+
+    <!-- Card com pesquisa e tabela -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Barra de pesquisa e filtros -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchAluno" placeholder="Buscar aluno...">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel me-1"></i>
+                            Filtros Avançados
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-3" style="width: 300px;">
+                            <li>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="filterStatus">
+                                        <option value="">Todos</option>
+                                        <option value="matriculado">Matriculado</option>
+                                        <option value="inativo">Inativo</option>
+                                        <option value="formado">Formado</option>
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de alunos -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="alunosTable">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Responsável</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Os dados serão inseridos aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal de Cadastro/Edição de Aluno -->
+<div class="modal fade" id="modalAluno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title" id="modalTitle">
+                    <i class="bi bi-person-plus-fill me-2"></i>
+                    Novo Aluno
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="alunoForm" class="needs-validation" novalidate>
+                    <!-- Identificação do Aluno -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>Identificação do Aluno</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label required">Nome completo do aluno</label>
+                                    <input type="text" class="form-control" id="nome" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required">Data de Nascimento</label>
+                                    <input type="date" class="form-control" id="dataNascimento" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required">Gênero</label>
+                                    <select class="form-select" id="genero" required>
+                                        <option value="">Selecione</option>
+                                        <option value="masculino">Masculino</option>
+                                        <option value="feminino">Feminino</option>
+                                        <option value="outro">Outro</option>
+                                        <option value="nao_informado">Prefiro não informar</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">CPF</label>
+                                    <input type="text" class="form-control" id="cpf" placeholder="Opcional">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">RG</label>
+                                    <input type="text" class="form-control" id="rg" placeholder="Opcional">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Endereço -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Endereço</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label required">CEP</label>
+                                    <input type="text" class="form-control" id="cep" required>
+                                </div>
+                                <div class="col-md-7">
+                                    <label class="form-label required">Endereço</label>
+                                    <input type="text" class="form-control" id="endereco" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label required">Número</label>
+                                    <input type="text" class="form-control" id="numero" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label required">Bairro</label>
+                                    <input type="text" class="form-control" id="bairro" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label required">Cidade</label>
+                                    <input type="text" class="form-control" id="cidade" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label required">Estado</label>
+                                    <select class="form-select" id="estado" required>
+                                        <option value="">Selecione</option>
+                                        <option value="AC">Acre</option>
+                                        <option value="AL">Alagoas</option>
+                                        <option value="AP">Amapá</option>
+                                        <option value="AM">Amazonas</option>
+                                        <option value="BA">Bahia</option>
+                                        <option value="CE">Ceará</option>
+                                        <option value="DF">Distrito Federal</option>
+                                        <option value="ES">Espírito Santo</option>
+                                        <option value="GO">Goiás</option>
+                                        <option value="MA">Maranhão</option>
+                                        <option value="MT">Mato Grosso</option>
+                                        <option value="MS">Mato Grosso do Sul</option>
+                                        <option value="MG">Minas Gerais</option>
+                                        <option value="PA">Pará</option>
+                                        <option value="PB">Paraíba</option>
+                                        <option value="PR">Paraná</option>
+                                        <option value="PE">Pernambuco</option>
+                                        <option value="PI">Piauí</option>
+                                        <option value="RJ">Rio de Janeiro</option>
+                                        <option value="RN">Rio Grande do Norte</option>
+                                        <option value="RS">Rio Grande do Sul</option>
+                                        <option value="RO">Rondônia</option>
+                                        <option value="RR">Roraima</option>
+                                        <option value="SC">Santa Catarina</option>
+                                        <option value="SP">São Paulo</option>
+                                        <option value="SE">Sergipe</option>
+                                        <option value="TO">Tocantins</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dados do Responsável -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-people me-2"></i>Dados do Responsável</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required">Nome do Responsável</label>
+                                    <input type="text" class="form-control" id="nomeResponsavel" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Telefone Principal</label>
+                                    <input type="tel" class="form-control" id="telefoneResponsavel1">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Telefone Alternativo</label>
+                                    <input type="tel" class="form-control" id="telefoneResponsavel2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações Escolares -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-book me-2"></i>Informações Escolares</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Escola</label>
+                                    <input type="text" class="form-control" id="escola">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Período</label>
+                                    <select class="form-select" id="periodo" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="manha">Manhã</option>
+                                        <option value="tarde">Tarde</option>
+                                        <option value="noite">Noite</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações de Saúde -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-heart-pulse me-2"></i>Informações de Saúde</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Medicações em uso</label>
+                                    <textarea class="form-control" id="medicacao" rows="1" placeholder="Liste as medicações em uso, se houver"></textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Restrições Alimentares</label>
+                                    <textarea class="form-control" id="restricaoAlimentar" rows="1" placeholder="Liste as restrições alimentares, se houver"></textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Alergias</label>
+                                    <textarea class="form-control" id="alergias" rows="1" placeholder="Liste as alergias, se houver"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Observações</label>
+                                    <textarea class="form-control" id="observacoes" rows="2" placeholder="Observações adicionais"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anexos -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-paperclip me-2"></i>Anexos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Termo de Autorização de Uso da Imagem</label>
+                                    <input type="file" class="form-control" id="termoImagem" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Termo da Lei Geral de Proteção de Dados</label>
+                                    <input type="file" class="form-control" id="termoLGPD" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Documentos Complementares</label>
+                                    <input type="file" class="form-control" id="documentosComplementares" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">RG, CPF, Comprovante de Residência, etc.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status da Matrícula -->
+                    <div class="card mb-4 border-purple">
+                        <div class="card-header bg-purple text-white">
+                            <h6 class="mb-0"><i class="bi bi-check-circle me-2"></i>Status da Matrícula</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label required">Status</label>
+                                    <select class="form-select" id="status" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="matriculado">Matriculado - Aluno ativo e frequentando regularmente</option>
+                                        <option value="inativo">Inativo - Aluno não está frequentando no momento, mas não foi cancelado</option>
+                                        <option value="cancelado">Cancelado - Matrícula foi encerrada por solicitação da família ou ONG</option>
+                                        <option value="formado">Formado - Aluno completou o ciclo ou projeto e foi oficialmente concluído</option>
+                                        <option value="aguardando_vaga">Aguardando vaga - Pré-cadastrado, mas ainda não alocado em turma</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary text-white" id="btnSalvarAluno">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Visualização -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Aluno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="viewAlunoContent">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="viewModal" tabindex="-1">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Detalhes do Aluno</h5>
+<button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+</div>
+<div class="modal-body" id="viewModalBody">
+
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Fechar</button>
+<button class="btn btn-primary" id="btnEditar" type="button">Editar</button>
+</div>
+</div>
+</div>
+</div> 
+<div class="modal fade" id="deleteModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header bg-danger text-white">
+<h5 class="modal-title">
+<i class="bi bi-exclamation-triangle me-2"></i>
+            Confirmar Exclusão
+          </h5>
+<button class="btn-close btn-close-white" data-bs-dismiss="modal" type="button"></button>
+</div>
+<div class="modal-body">
+<div class="alert alert-warning">
+<i class="bi bi-exclamation-circle me-2"></i>
+<strong>Atenção!</strong> Esta ação não pode ser desfeita.
+          </div>
+<p>Você está prestes a excluir o cadastro do aluno:</p>
+<p class="fw-bold text-center fs-5 mb-4" id="deleteAlunoNome"></p>
+<p>Para confirmar a exclusão, digite sua senha:</p>
+<div class="form-floating mb-3">
+<input class="form-control" id="senhaConfirmacao" placeholder="Senha" required="" type="password"/>
+<label for="senhaConfirmacao">Sua senha</label>
+<div class="invalid-feedback">Por favor, digite sua senha.</div>
+</div>
+<div class="form-floating mb-3">
+<textarea class="form-control" id="motivoExclusao" placeholder="Motivo" required="" style="height: 100px"></textarea>
+<label for="motivoExclusao">Motivo da exclusão</label>
+<div class="invalid-feedback">Por favor, informe o motivo da exclusão.</div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+<button class="btn btn-danger" id="btnConfirmarExclusao" type="button">
+<i class="bi bi-trash me-2"></i>
+            Confirmar Exclusão
+            <span aria-hidden="true" class="spinner-border spinner-border-sm spinner" role="status"></span>
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="logModal" tabindex="-1">
+<div class="modal-dialog modal-lg modal-dialog-scrollable">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">
+<i class="bi bi-clock-history me-2"></i>
+            Histórico de Ações
+          </h5>
+<button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+</div>
+<div class="modal-body">
+<div class="table-responsive">
+<table class="table table-striped" id="logTable">
+<thead>
+<tr>
+<th>Data/Hora</th>
+<th>Usuário</th>
+<th>Ação</th>
+<th>Detalhes</th>
+</tr>
+</thead>
+<tbody id="logTableBody">
+
+</tbody>
+</table>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Fechar</button>
+</div>
+</div>
+</div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+// Configuração do Firebase
+
+
+
+
+async function saveAluno(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('alunoForm');
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+
+    const alunoData = {
+        nome: document.getElementById('nomeAluno').value,
+        dataNascimento: document.getElementById('dataNascimento').value,
+        responsavel: document.getElementById('nomeResponsavel').value,
+        telefone: document.getElementById('telefone').value,
+        status: document.getElementById('status').value,
+        dataAtualizacao: new Date().toISOString()
+    };
+
+    try {
+        if (currentAlunoId) {
+            await db.collection('alunos').doc(currentAlunoId).update(alunoData);
+        } else {
+            alunoData.dataCadastro = new Date().toISOString();
+            await db.collection('alunos').add(alunoData);
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('modalAluno')).hide();
+        loadAlunos();
+        form.reset();
+        form.classList.remove('was-validated');
+    } catch (error) {
+        console.error('Erro ao salvar aluno:', error);
+        alert('Erro ao salvar os dados do aluno');
+    }
+}
+
+// Funções de visualização e edição
+window.viewAluno = async (id) => {
+    try {
+        const doc = await db.collection('alunos').doc(id).get();
+        if (doc.exists) {
+            const aluno = doc.data();
+            const content = document.getElementById('viewAlunoContent');
+            
+            content.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <p><strong>Nome:</strong> ${aluno.nome || ''}</p>
+                        <p><strong>Data de Nascimento:</strong> ${aluno.dataNascimento ? new Date(aluno.dataNascimento).toLocaleDateString() : ''}</p>
+                        <p><strong>Status:</strong> ${aluno.status ? aluno.status.charAt(0).toUpperCase() + aluno.status.slice(1) : ''}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Responsável:</strong> ${aluno.responsavel || ''}</p>
+                        <p><strong>Telefone:</strong> ${aluno.telefone || ''}</p>
+                        <p><strong>Data de Cadastro:</strong> ${aluno.dataCadastro ? new Date(aluno.dataCadastro).toLocaleDateString() : ''}</p>
+                    </div>
+                </div>
+            `;
+
+            new bootstrap.Modal(document.getElementById('modalViewAluno')).show();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar detalhes do aluno:', error);
+        alert('Erro ao carregar detalhes do aluno');
+    }
+};
+
+window.editAluno = async (id) => {
+    currentAlunoId = id;
+    try {
+        const doc = await db.collection('alunos').doc(id).get();
+        if (doc.exists) {
+            const aluno = doc.data();
+            document.getElementById('nomeAluno').value = aluno.nome || '';
+            document.getElementById('dataNascimento').value = aluno.dataNascimento || '';
+            document.getElementById('nomeResponsavel').value = aluno.responsavel || '';
+            document.getElementById('telefone').value = aluno.telefone || '';
+            document.getElementById('status').value = aluno.status || '';
+
+            document.getElementById('modalTitle').textContent = 'Editar Aluno';
+            new bootstrap.Modal(document.getElementById('modalAluno')).show();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados para edição:', error);
+        alert('Erro ao carregar dados do aluno');
+    }
+};
+
+window.deleteAluno = async (id) => {
+    if (confirm('Tem certeza que deseja excluir este aluno?')) {
+        try {
+            await db.collection('alunos').doc(id).delete();
+            loadAlunos();
+        } catch (error) {
+            console.error('Erro ao deletar aluno:', error);
+            alert('Erro ao excluir o aluno');
+        }
+    }
+};
+
+// Event Listeners
+// Event listeners para busca e filtros são manipulados pelo DataTables
+
+document.getElementById('btnSalvarAluno').addEventListener('click', saveAluno);
+
+document.getElementById('modalAluno').addEventListener('hidden.bs.modal', () => {
+    currentAlunoId = null;
+    document.getElementById('modalTitle').textContent = 'Novo Aluno';
+    document.getElementById('alunoForm').reset();
+    document.getElementById('alunoForm').classList.remove('was-validated');
+});
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDataTable();
+    loadAlunos();
+});
+
+// Variáveis globais
+let currentUserId = null;
+let dataTable = null;
+let currentAlunoId = null;
+
+const userNameElement = document.getElementById('userName');
+const userInitialsElement = document.getElementById('userInitials');
+
+// Função para inicializar a interface do usuário
+async function initializeUI(user) {
+    if (user) {
+        currentUserId = user.uid;
+        if (userNameElement) userNameElement.textContent = user.email;
+        if (userInitialsElement && user.email) {
+            userInitialsElement.textContent = user.email[0].toUpperCase();
+        }
+
+        try {
+            const userDocRef = await db.collection('usuarios').doc(user.uid).get();
+            if (userDocRef.exists) {
+                const userData = userDocRef.data();
+                // Atualizar interface com dados do usuário
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados do usuário:', error);
+        }
+    }
+}
+
+// Inicializar a aplicação
+async function initializeApp() {
+    try {
+        // Verificar autenticação
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // Carregar dados do usuário
+        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            const displayName = userData.nome || user.email;
+
+            if (userNameElement) {
+                userNameElement.textContent = displayName;
+            }
+            
+            if (userInitialsElement && userData.nome) {
+                const initials = userData.nome.split(' ')
+                    .map(n => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2);
+                userInitialsElement.textContent = initials;
+            }
+        }
+
+        // Inicializar componentes
+        await loadAlunos();
+        initializeDataTable();
+
+    } catch (error) {
+        console.error('Erro ao inicializar aplicação:', error);
+        alert('Erro ao carregar a aplicação.');
+    }
+}
+
+// Configurar logout
+document.getElementById('btnLogout').addEventListener('click', async (event) => {
+    event.preventDefault();
+    try {
+        await firebase.auth().signOut();
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        alert('Erro ao fazer logout.');
+    }
+});
+
+function initializeDataTable() {
+    if ($.fn.DataTable.isDataTable('#alunosTable')) {
+        $('#alunosTable').DataTable().destroy();
+    }
+    
+    // Função auxiliar para ordenar status
+    function getStatusOrder(status) {
+        const orderMap = {
+            'matriculado': 1,
+            'inativo': 2,
+            'aguardando_vaga': 3,
+            'cancelado': 4,
+            'formado': 5
+        };
+        return orderMap[status] || 999;
+    }
+
+    dataTable = $('#alunosTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
+        },
+        responsive: true,
+        order: [[3, 'asc'], [0, 'asc']], // Primeiro ordena por status, depois por nome
+        columns: [
+            { 
+                data: 'nome',
+                type: 'string'
+            },
+            { 
+                data: 'responsavel',
+                type: 'string'
+            },
+            { 
+                data: 'telefone',
+                type: 'string'
+            },
+            { 
+                data: 'status',
+                type: 'string',
+                render: function(data) {
+                    const statusClass = {
+                        'matriculado': 'text-success',
+                        'inativo': 'text-warning',
+                        'aguardando_vaga': 'text-info',
+                        'cancelado': 'text-danger',
+                        'formado': 'text-primary'
+                    }[data] || 'text-secondary';
+                    
+                    return '<span class="' + statusClass + '">' + 
+                           (data ? data.charAt(0).toUpperCase() + data.slice(1) : '') + 
+                           '</span>';
+                },
+                // Função de ordenação personalizada
+                createdCell: function(cell, cellData) {
+                    $(cell).attr('data-order', getStatusOrder(cellData));
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                render: function(data, type, row) {
+                    return '<div class="text-end">' +
+                           '<button class="btn btn-sm btn-outline-primary me-1" onclick="viewAluno(\'' + row.id + '\')">' +
+                           '<i class="bi bi-eye"></i>' +
+                           '</button>' +
+                           '<button class="btn btn-sm btn-outline-secondary me-1" onclick="editAluno(\'' + row.id + '\')">' +
+                           '<i class="bi bi-pencil"></i>' +
+                           '</button>' +
+                           '<button class="btn btn-sm btn-outline-danger" onclick="deleteAluno(\'' + row.id + '\')">' +
+                           '<i class="bi bi-trash"></i>' +
+                           '</button>' +
+                           '</div>';
+                }
+            }
+        ]
+    });
+}
+
+async function loadAlunos() {
+    try {
+        const alunosRef = await db.collection('alunos').get();
+        const alunos = [];
+
+        alunosRef.forEach(doc => {
+            const data = doc.data();
+            const aluno = {
+                id: doc.id,
+                nome: data.nome || '',
+                responsavel: data.responsavel || '',
+                telefone: data.telefone || '',
+                status: data.status || '',
+                dataNascimento: data.dataNascimento || '',
+                dataCadastro: data.dataCadastro || '',
+                periodo: data.periodo || '',
+                escola: data.escola || '',
+                medicacao: data.medicacao || '',
+                restricaoAlimentar: data.restricaoAlimentar || '',
+                alergias: data.alergias || '',
+                observacoes: data.observacoes || '',
+                cep: data.cep || '',
+                endereco: data.endereco || '',
+                numero: data.numero || '',
+                bairro: data.bairro || '',
+                cidade: data.cidade || '',
+                estado: data.estado || ''
+            };
+            alunos.push(aluno);
+        });
+
+        if (dataTable) {
+            dataTable.clear();
+            dataTable.rows.add(alunos);
+            dataTable.draw();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar alunos:', error);
+        alert('Erro ao carregar a lista de alunos');
+    }
+}
+
+function calculateAge(birthDate) {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      return age;
+    }
+
+    function formatPeriodo(periodo) {
+      const periodos = {
+        manha: 'Manhã',
+        tarde: 'Tarde',
+        integral: 'Integral',
+        noite: 'Noite'
+      };
+      return periodos[periodo] || periodo;
+    }
+
+    function clearForm() {
+      currentAlunoId = null;
+      const form = document.getElementById('alunoForm');
+      form.reset();
+      form.classList.remove('was-validated');
+      
+      [
+        'nome',
+        'dataNascimento',
+        'endereco',
+        'numero',
+        'bairro',
+        'cidade',
+        'estado',
+        'escola',
+        'responsavel',
+        'telefone',
+        'medicacao',
+        'restricaoAlimentar',
+        'alergias',
+        'observacoes'
+      ].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      
+      document.getElementById('termoImagem').value = '';
+      document.getElementById('termoLGPD').value = '';
+      
+      document.getElementById('periodo').selectedIndex = 0;
+      document.getElementById('estado').selectedIndex = 0;
+      
+      const previews = document.querySelectorAll('[id$="Preview"]');
+      previews.forEach(preview => preview.innerHTML = '');
+      
+      document.getElementById('modalTitle').textContent = 'Novo Aluno';
+    }
+
+    document.getElementById('btnNovoAluno').addEventListener('click', () => {
+      clearForm();
+      const modal = new bootstrap.Modal(document.getElementById('modalAluno'));
+      modal.show();
+    });
+
+    document.getElementById('btnSalvar').addEventListener('click', async () => {
+      const form = document.getElementById('alunoForm');
+      form.classList.add('was-validated');
+
+      if (!form.checkValidity()) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+
+      const salvarBtn = document.getElementById('btnSalvar');
+      const spinner = salvarBtn.querySelector('.spinner');
+      spinner.classList.add('active');
+
+      try {
+        const termoImagemFile = document.getElementById('termoImagem').files[0];
+        const termoLGPDFile = document.getElementById('termoLGPD').files[0];
+        
+        const alunoData = {
+          nome: document.getElementById('nome').value,
+          dataNascimento: document.getElementById('dataNascimento').value,
+          endereco: document.getElementById('endereco').value,
+          numero: document.getElementById('numero').value,
+          bairro: document.getElementById('bairro').value,
+          cidade: document.getElementById('cidade').value,
+          estado: document.getElementById('estado').value,
+          responsavel: document.getElementById('responsavel').value,
+          periodo: document.getElementById('periodo').value,
+          escola: document.getElementById('escola').value,
+          medicacao: document.getElementById('medicacao').value,
+          restricaoAlimentar: document.getElementById('restricaoAlimentar').value,
+          alergias: document.getElementById('alergias').value,
+          observacoes: document.getElementById('observacoes').value,
+          status: 'ativo',
+          dataCadastro: new Date().toISOString()
+        };
+
+        if (currentAlunoId) {
+          if (termoImagemFile) {
+            const oldDoc = (await getDoc(doc(db, 'alunos', currentAlunoId))).data();
+            if (oldDoc.termoImagem?.path) {
+              await deleteFile(oldDoc.termoImagem.path);
+            }
+            alunoData.termoImagem = await uploadFile(termoImagemFile, currentAlunoId, 'termo_imagem');
+          }
+          
+          if (termoLGPDFile) {
+            const oldDoc = (await getDoc(doc(db, 'alunos', currentAlunoId))).data();
+            if (oldDoc.termoLGPD?.path) {
+              await deleteFile(oldDoc.termoLGPD.path);
+            }
+            alunoData.termoLGPD = await uploadFile(termoLGPDFile, currentAlunoId, 'termo_lgpd');
+          }
+          
+          await updateDoc(doc(db, 'alunos', currentAlunoId), alunoData);
+        } else {
+          const docRef = await addDoc(collection(db, 'alunos'), alunoData);
+          if (termoImagemFile) {
+            const termoImagemData = await uploadFile(termoImagemFile, docRef.id, 'termo_imagem');
+            await updateDoc(docRef, { termoImagem: termoImagemData });
+          }
+          if (termoLGPDFile) {
+            const termoLGPDData = await uploadFile(termoLGPDFile, docRef.id, 'termo_lgpd');
+            await updateDoc(docRef, { termoLGPD: termoLGPDData });
+          }
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('alunoModal')).hide();
+        loadAlunos();
+      } catch (error) {
+        console.error('Erro ao salvar aluno:', error);
+        alert('Erro ao salvar aluno. Verifique sua conexão ou permissões.');
+      } finally {
+        spinner.classList.remove('active');
+      }
+    });
+
+    async function uploadFile(file, alunoId, tipo) {
+      if (!file) return null;
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${alunoId}_${tipo}.${fileExt}`;
+      const storageRef = ref(storage, `documentos/${alunoId}/${fileName}`);
+      
+      try {
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        return {
+          url: downloadURL,
+          nome: file.name,
+          tipo: file.type,
+          path: storageRef.fullPath
+        };
+      } catch (error) {
+        console.error('Erro ao fazer upload:', error);
+        throw error;
+      }
+    }
+
+    async function deleteFile(path) {
+      if (!path) return;
+      
+      try {
+        const fileRef = ref(storage, path);
+        await deleteObject(fileRef);
+      } catch (error) {
+        console.error('Erro ao excluir arquivo:', error);
+        throw error;
+      }
+    }
+
+    async function viewAluno(id) {
+    try {
+        const doc = await db.collection('alunos').doc(id).get();
+        if (doc.exists) {
+            const aluno = doc.data();
+            const modalBody = document.querySelector('#viewModal .modal-body');
+            modalBody.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-12">
+                        <h6>Dados Pessoais</h6>
+                        <p><strong>Nome:</strong> ${aluno.nome}</p>
+                        <p><strong>Data de Nascimento:</strong> ${aluno.dataNascimento}</p>
+                        <p><strong>Status:</strong> ${aluno.status}</p>
+                    </div>
+                    <div class="col-12">
+                        <h6>Contato</h6>
+                        <p><strong>Responsável:</strong> ${aluno.responsavel}</p>
+                        <p><strong>Telefone:</strong> ${aluno.telefone}</p>
+                    </div>
+                    <div class="col-12">
+                        <h6>Endereço</h6>
+                        <p>${aluno.endereco}, ${aluno.numero}</p>
+                        <p>${aluno.bairro}</p>
+                        <p>${aluno.cidade} - ${aluno.estado}</p>
+                    </div>
+                    <div class="col-12">
+                        <h6>Informações Escolares</h6>
+                        <p><strong>Período:</strong> ${formatPeriodo(aluno.periodo)}</p>
+                        <p><strong>Escola:</strong> ${aluno.escola || 'Não informado'}</p>
+                    </div>
+                    <div class="col-12">
+                        <h6>Saúde</h6>
+                        <p><strong>Medicação:</strong> ${aluno.medicacao || 'Não'}</p>
+                        <p><strong>Restrição Alimentar:</strong> ${aluno.restricaoAlimentar || 'Não'}</p>
+                        <p><strong>Alergias:</strong> ${aluno.alergias || 'Não'}</p>
+                        <p><strong>Observações:</strong> ${aluno.observacoes || 'Não'}</p>
+                    </div>
+                </div>
+            `;
+            const modal = new bootstrap.Modal(document.getElementById('viewModal'));
+            modal.show();
+        }
+    } catch (error) {
+        console.error('Erro ao visualizar aluno:', error);
+        alert('Erro ao carregar dados do aluno');
+    }
+}
+
+    async function editAluno(id) {
+      try {
+        const doc = await db.collection('alunos').doc(id).get();
+        if (doc.exists) {
+          const aluno = doc.data();
+          document.getElementById('alunoId').value = id;
+          document.getElementById('nome').value = aluno.nome || '';
+          document.getElementById('responsavel').value = aluno.responsavel || '';
+          document.getElementById('telefone').value = aluno.telefone || '';
+          document.getElementById('status').value = aluno.status || '';
+          document.getElementById('dataNascimento').value = aluno.dataNascimento || '';
+          document.getElementById('periodo').value = aluno.periodo || '';
+          document.getElementById('escola').value = aluno.escola || '';
+          document.getElementById('medicacao').value = aluno.medicacao || '';
+          document.getElementById('restricaoAlimentar').value = aluno.restricaoAlimentar || '';
+          document.getElementById('alergias').value = aluno.alergias || '';
+          document.getElementById('observacoes').value = aluno.observacoes || '';
+          document.getElementById('cep').value = aluno.cep || '';
+          document.getElementById('endereco').value = aluno.endereco || '';
+          document.getElementById('numero').value = aluno.numero || '';
+          document.getElementById('bairro').value = aluno.bairro || '';
+          document.getElementById('cidade').value = aluno.cidade || '';
+          document.getElementById('estado').value = aluno.estado || '';
+
+          document.getElementById('modalTitle').textContent = 'Editar Aluno';
+          const modal = new bootstrap.Modal(document.getElementById('modalAluno'));
+          modal.show();
+        }
+      } catch (error) {
+        console.error('Erro ao carregar aluno para edição:', error);
+        alert('Erro ao carregar dados do aluno');
+      }
+    }
+
+    async function deleteAluno(id) {
+      try {
+        const alunoDoc = await db.collection('alunos').doc(id).get();
+        if (alunoDoc.exists) {
+          const aluno = alunoDoc.data();
+          document.getElementById('deleteAlunoNome').textContent = aluno.nome;
+          currentAlunoId = id;
+          const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+          modal.show();
+        } else {
+          alert('Aluno não encontrado.');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do aluno:', error);
+        alert('Erro ao carregar informações do aluno.');
+      }
+    }
+
+    // Função para confirmar exclusão
+    function setupDeleteConfirmation() {
+      document.getElementById('btnConfirmarExclusao').addEventListener('click', async () => {
+        const deleteBtn = document.getElementById('btnConfirmarExclusao');
+        const spinner = deleteBtn.querySelector('.spinner');
+        spinner.classList.add('active');
+
+        try {
+          const senhaConfirmacao = document.getElementById('senhaConfirmacao').value;
+          const motivoExclusao = document.getElementById('motivoExclusao').value;
+
+          if (!senhaConfirmacao || !motivoExclusao) {
+            alert('Por favor, preencha a senha e o motivo da exclusão.');
+            spinner.classList.remove('active');
+            return;
+          }
+
+        await deleteDoc(doc(db, 'alunos', currentAlunoId));
+        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+        loadAlunos();
+      } catch (error) {
+        console.error('Erro ao excluir aluno:', error);
+        alert('Erro ao excluir aluno. Verifique sua conexão ou permissões.');
+      } finally {
+        spinner.classList.remove('active');
+      }
+    });
+
+    $.fn.dataTable.ext.search.push(
+      function(settings, data, dataIndex) {
+        const restricaoFilter = document.getElementById('filterRestricao').value;
+        const aluno = dataTable.row(dataIndex).data();
+        
+        if (restricaoFilter === '') return true;
+        const hasRestricao = aluno.restricaoAlimentar && aluno.restricaoAlimentar !== '';
+        return (restricaoFilter === 'sim' && hasRestricao) || (restricaoFilter === 'nao' && !hasRestricao);
+      }
+    );
+
+<script>
+  // Variável global para o DataTable
+  var dataTable;
+
+  // Função para inicializar o DataTable
+  function initializeDataTable() {
+    dataTable = $('#tabelaAlunos').DataTable({
+      language: {
+        url: '../assets/js/dataTables.pt-BR.json'
+      },
+      responsive: true,
+      order: [[1, 'asc']],
+      columns: [
+        { data: 'nome' },
+        { data: 'dataNascimento' },
+        { data: 'periodo' },
+        { data: 'responsavel' },
+        { data: 'status' },
+        { data: 'restricaoAlimentar' }
+      ]
+    });
+  }
+
+  // Função para configurar os filtros
+  function setupFilters() {
+    // Filtro de busca geral
+    var searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        if (dataTable) {
+          dataTable.search(this.value).draw();
+        }
+      });
+    }
+
+    // Filtros de período e status
+    function setupPeriodoStatusFilters() {
+      ['filterPeriodo', 'filterStatus'].forEach(function(filterId) {
+        var element = document.getElementById(filterId);
+        if (element && dataTable) {
+          element.addEventListener('change', function() {
+            var colIndex = {
+              filterPeriodo: 2,
+              filterStatus: 4
+            }[filterId];
+            
+            if (this.value) {
+              dataTable.column(colIndex).search(this.value).draw();
+            } else {
+              dataTable.column(colIndex).search('').draw();
+            }
+          });
+        }
+      });
+    }
+
+    // Filtro de restrição alimentar
+    function setupRestricaoFilter() {
+      var restricaoFilter = document.getElementById('filterRestricao');
+      if (restricaoFilter && dataTable) {
+        restricaoFilter.addEventListener('change', function() {
+          var restricaoValue = this.value;
+          dataTable.column(5).search(restricaoValue ? 'Sim' : '').draw();
+        });
+      }
+    }
+  }
+
+  // Inicialização quando o documento estiver pronto
+  $(document).ready(function() {
+    initializeDataTable();
+    setupFilters();
+    setupPeriodoStatusFilters();
+    setupRestricaoFilter();
+    setupDeleteConfirmation();
+    loadAlunos();
+  });
+</script>
+
+<!-- Modal de Visualização -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes do Aluno</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="viewModalBody">
+        <!-- O conteúdo será inserido dinamicamente via JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary" onclick="editAluno(currentAlunoId)">Editar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+        </div>
+        <p>Você está prestes a excluir o cadastro do aluno:</p>
+        <p class="fw-bold text-center fs-5 mb-4" id="deleteAlunoNome"></p>
+        <p>Para confirmar a exclusão, digite sua senha:</p>
+        <div class="form-floating mb-3">
+          <input type="password" class="form-control" id="confirmPassword" placeholder="Senha" />
+          <label for="confirmPassword">Senha</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">
+          <span class="spinner spinner-border spinner-border-sm me-1 d-none"></span>
+          Confirmar Exclusão
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../utils/default.js"></script>
+<script>
+  // Inicializar tooltips
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = Array.prototype.slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+</body>
+</html>

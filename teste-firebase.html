@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Firebase</title>
+    <style>
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Teste de Conexão com Firebase</h1>
+    <button onclick="testarConexao()">Testar Conexão</button>
+    <h2>Dados no Firestore:</h2>
+    <div id="resultado"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIG-2A1Bjog0XlS2BDIa1hd-PlrY7W0v4",
+            authDomain: "sistema-ong-c6c05.firebaseapp.com",
+            projectId: "sistema-ong-c6c05",
+            storageBucket: "sistema-ong-c6c05.firebasestorage.app",
+            messagingSenderId: "326382290585",
+            appId: "1:326382290585:web:ee0f282efe6f0e303d5a08"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Função para testar a conexão
+        window.testarConexao = async function() {
+            try {
+                const resultado = document.getElementById('resultado');
+                resultado.innerHTML = 'Carregando dados...';
+
+                // Tentar ler dados de todas as coleções
+                const colecoes = ['usuarios', 'turmas', 'alunos', 'chamadas'];
+                let dadosHTML = '';
+
+                for (const colecao of colecoes) {
+                    const querySnapshot = await getDocs(collection(db, colecao));
+                    dadosHTML += `<h3>Coleção: ${colecao}</h3>`;
+                    dadosHTML += '<pre>';
+                    
+                    if (querySnapshot.empty) {
+                        dadosHTML += 'Nenhum documento encontrado\n';
+                    } else {
+                        querySnapshot.forEach((doc) => {
+                            dadosHTML += `ID: ${doc.id}\nDados: ${JSON.stringify(doc.data(), null, 2)}\n\n`;
+                        });
+                    }
+                    
+                    dadosHTML += '</pre>';
+                }
+
+                resultado.innerHTML = dadosHTML;
+                console.log('✅ Conexão com Firebase testada com sucesso!');
+            } catch (error) {
+                console.error('❌ Erro ao testar conexão:', error);
+                document.getElementById('resultado').innerHTML = `<pre style="color: red">Erro: ${error.message}</pre>`;
+            }
+        }
+    </script>
+
+    <!-- Executar script de população de dados -->
+    <script type="module" src="./js/firebase-init.js"></script>
+</body>
+</html>
