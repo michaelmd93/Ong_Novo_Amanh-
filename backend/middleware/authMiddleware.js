@@ -1,0 +1,55 @@
+const jwt = require('jsonwebtoken');
+const { User } = require('../models');
+
+const authMiddleware = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        error: 'Token de acesso requerido'
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    
+    if (!user || !user.ativo) {
+      return res.status(401).json({
+        error: 'Usuário não encontrado ou inativo'
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Erro na autenticação:', error);
+    res.status(401).json({
+      error: 'Token inválido'
+    });
+  }
+};
+
+// Middleware para verificar permissões específicas
+const requireRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'Usuário não autenticado'
+      });
+    }
+
+    if (!roles.includes(req.user.cargo)) {
+      return res.status(403).json({
+        error: 'Permissão insuficiente'
+      });
+    }
+
+    next();
+  };
+};
+
+module.exports = {
+  authMiddleware,
+  requireRole
+};

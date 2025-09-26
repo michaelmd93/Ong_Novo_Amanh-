@@ -4,12 +4,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebas
 
 // Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBIG-2A1Bjog0XlS2BDIa1hd-PlrY7W0v4",
-  authDomain: "sistema-ong-c6c05.firebaseapp.com",
-  projectId: "sistema-ong-c6c05",
-  storageBucket: "sistema-ong-c6c05.firebasestorage.app",
-  messagingSenderId: "326382290585",
-  appId: "1:326382290585:web:ee0f282efe6f0e303d5a08"
+  apiKey: "AIzaSyBhnxbk6v_p5EJ_dgnh0oyCOcWD-AGnUUQ",
+  authDomain: "ong-novo-amanha.firebaseapp.com",
+  projectId: "ong-novo-amanha",
+  storageBucket: "ong-novo-amanha.firebasestorage.app",
+  messagingSenderId: "788965717185",
+  appId: "1:788965717185:web:a2bdf9bcdafebe9abc9040"
 };
 
 // Inicializar Firebase

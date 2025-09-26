@@ -1,4 +1,4 @@
-import { getAlunos, getAluno, addAluno, updateAluno, deleteAluno, onAuthStateChanged } from './firebase-alunos.js';
+import { getAlunos, getAluno, addAluno, updateAluno, deleteAluno as deleteAlunoFirebase, onAuthStateChanged } from './firebase-alunos.js';
 
 let dataTable;
 let currentUser;
@@ -161,18 +161,71 @@ async function editAluno(id) {
   }
 }
 
-// Excluir aluno
+// Excluir aluno com confirmação de senha e motivo
 async function deleteAluno(id) {
-  if (confirm('Tem certeza que deseja excluir este aluno?')) {
+  const alunoDoc = await getAluno(id);
+  if (!alunoDoc) {
+    alert('Aluno não encontrado.');
+    return;
+  }
+  // Preencher nome no modal
+  document.getElementById('deleteAlunoNome').textContent = alunoDoc.nome;
+  document.getElementById('senhaConfirmacao').value = '';
+  document.getElementById('motivoExclusao').value = '';
+  const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  modal.show();
+  // Listener do botão confirmar exclusão
+  const btnConfirmar = document.getElementById('btnConfirmarExclusao');
+  const handler = async () => {
+    const senhaConfirmacao = document.getElementById('senhaConfirmacao').value;
+    const motivoExclusao = document.getElementById('motivoExclusao').value;
+    const spinner = btnConfirmar.querySelector('.spinner');
+    spinner.classList.add('active');
+    if (!senhaConfirmacao || !motivoExclusao) {
+      alert('Por favor, preencha a senha e o motivo da exclusão.');
+      spinner.classList.remove('active');
+      return;
+    }
     try {
-      await deleteAluno(id);
+      // Aqui você deve validar a senha do usuário logado (implemente conforme sua lógica de auth)
+      // Exemplo: if (!(await validarSenhaUsuario(senhaConfirmacao))) { alert('Senha incorreta!'); return; }
+      await deleteAlunoFirebase(id);
+      bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
       loadAlunos();
     } catch (error) {
       console.error('Erro ao excluir aluno:', error);
-      alert('Erro ao excluir aluno. Por favor, tente novamente.');
+      alert('Erro ao excluir aluno. Verifique sua conexão ou permissões.');
+    } finally {
+      spinner.classList.remove('active');
+      btnConfirmar.removeEventListener('click', handler);
+    }
+  };
+  btnConfirmar.addEventListener('click', handler);
+}
+
+// Filtro DataTables para restrição alimentar
+function setupRestricaoAlimentarFilter() {
+  if (window.jQuery && window.$ && $.fn.dataTable) {
+    $.fn.dataTable.ext.search.push(
+      function(settings, data, dataIndex) {
+        const restricaoFilter = document.getElementById('filterRestricao')?.value || '';
+        const aluno = dataTable.row(dataIndex).data();
+        if (!aluno) return true;
+        if (restricaoFilter === '') return true;
+        const hasRestricao = aluno.restricaoAlimentar && aluno.restricaoAlimentar.trim() !== '';
+        return (restricaoFilter === 'sim' && hasRestricao) || (restricaoFilter === 'nao' && !hasRestricao);
+      }
+    );
+    // Atualizar tabela ao mudar filtro
+    const filterElem = document.getElementById('filterRestricao');
+    if (filterElem) {
+      filterElem.addEventListener('change', () => {
+        dataTable.draw();
+      });
     }
   }
 }
+
 
 // Configurar event listeners
 function setupEventListeners() {
@@ -196,7 +249,34 @@ function setupEventListeners() {
       console.error('Erro ao fazer logout:', error);
     }
   });
+
+  // Buscar endereço automático pelo CEP
+  const cepInput = document.getElementById('cep');
+  if (cepInput) {
+    cepInput.addEventListener('blur', async () => {
+      let cep = cepInput.value.replace(/\D/g, '');
+      if (cep.length !== 8) return;
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        if (!response.ok) throw new Error('Erro ao buscar CEP');
+        const data = await response.json();
+        if (data.erro) throw new Error('CEP não encontrado');
+        document.getElementById('endereco').value = data.logradouro || '';
+        document.getElementById('bairro').value = data.bairro || '';
+        document.getElementById('cidade').value = data.localidade || '';
+        document.getElementById('estado').value = data.uf || '';
+      } catch (e) {
+        // Limpa campos se erro
+        document.getElementById('endereco').value = '';
+        document.getElementById('bairro').value = '';
+        document.getElementById('cidade').value = '';
+        document.getElementById('estado').value = '';
+        // Opcional: alert('CEP inválido ou não encontrado.');
+      }
+    });
+  }
 }
+
 
 // Calcular idade
 function calculateAge(birthDate) {

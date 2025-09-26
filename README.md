@@ -1,30 +1,115 @@
 
-# Projeto BETA - Sistema da ONG Novo Amanhã
+# 🏢 Plataforma ONG Novo Amanhã
 
-Este é um sistema web em desenvolvimento para a gestão da ONG Novo Amanhã.
+Sistema completo de gestão para ONGs com backend MySQL e frontend responsivo.
 
-## ✅ Funcionalidades já implementadas
+## 🚀 Funcionalidades Implementadas
 
-- Cadastro simulado de alunos
-- Registro de presença (chamada)
-- Dashboard com métricas (alunos, salas, presença)
+### 👥 Gestão de Alunos
+- ✅ Cadastro completo de alunos
+- ✅ Edição e atualização de dados
+- ✅ Listagem com DataTables
+- ✅ Validação de formulários
+- ✅ Persistência no banco MySQL
+
+### 🔧 Tecnologias
+- **Frontend:** HTML5, CSS3, Bootstrap 5, JavaScript ES6+
+- **Backend:** Node.js, Express.js, Sequelize ORM
+- **Banco de Dados:** MySQL
+- **Autenticação:** Sistema próprio (desenvolvimento)
+
+### 🌟 Outras Funcionalidades
+- Dashboard com métricas
+- Sistema de presença
 - Controle de doações
-- Documentos em nuvem (upload e listagem simulada)
-- Galeria de fotos com upload local
-- Calendário com eventos simulados
-- Guia do usuário com boas práticas
-- Tela de primeiro acesso
-- Navegação funcional entre todas as páginas
+- Galeria de fotos
+- Calendário de eventos
+- Documentos em nuvem
 
-## 📁 Estrutura de pastas
+## 📁 Estrutura do Projeto
 
 ```
-PI/
-├── index.html
-├── css/
-│   └── global.css
-├── js/
-│   └── [scripts por página]
+Plataforma-ong/
+├── index.html                 # Página de login
+├── pages/                     # Páginas da aplicação
+│   ├── alunos.html           # Gestão de alunos
+│   ├── dashboard.html        # Dashboard principal
+│   └── ...
+├── css/                      # Estilos
+│   ├── global.css           # Estilos globais
+│   ├── cards.css            # Componentes de cards
+│   └── ...
+├── js/                       # Scripts frontend
+│   ├── alunos-mysql.js      # Gestão de alunos
+│   ├── login-mysql.js       # Sistema de login
+│   └── ...
+├── backend/                  # API Backend
+│   ├── server.js            # Servidor principal
+│   ├── controllers/         # Controladores
+│   ├── models/              # Modelos Sequelize
+│   ├── routes/              # Rotas da API
+│   ├── database/            # Scripts do banco
+│   └── config/              # Configurações
+└── assets/                   # Recursos estáticos
+    └── ong-guia.pdf
+```
+
+## 🛠️ Instalação e Configuração
+
+### Pré-requisitos
+- Node.js (v14 ou superior)
+- MySQL Server
+- MySQL Workbench (recomendado)
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/seu-usuario/plataforma-ong.git
+cd plataforma-ong
+```
+
+### 2. Configure o Backend
+```bash
+cd backend
+npm install
+```
+
+### 3. Configure o Banco de Dados
+1. Abra o MySQL Workbench
+2. Execute o script `backend/database/setup.sql`
+3. Crie um arquivo `.env` baseado no `.env.example`
+
+### 4. Inicie o Servidor
+```bash
+npm start
+```
+
+### 5. Acesse a Aplicação
+- Frontend: Abra `index.html` no navegador
+- API: http://localhost:3003/api
+
+## 🔑 Credenciais de Teste
+- **Admin:** admin@ongnovoamanha.org / admin123
+- **Banco:** ong_user / 123456
+
+## 📋 API Endpoints
+
+### Alunos
+- `GET /api/alunos` - Listar alunos
+- `GET /api/alunos/:id` - Obter aluno específico
+- `POST /api/alunos` - Criar aluno
+- `PUT /api/alunos/:id` - Atualizar aluno
+
+## 🤝 Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
 ├── data/
 │   └── simulacoes.js
 ├── utils/
