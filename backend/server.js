@@ -14,7 +14,7 @@ const dashboardRoutes = require('./routes/dashboard');
 const { sequelize } = require('./models');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3003;
 
 // Middleware de segurança
 app.use(helmet());

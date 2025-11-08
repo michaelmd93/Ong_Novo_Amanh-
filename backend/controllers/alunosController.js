@@ -19,8 +19,9 @@ const getAlunos = async (req, res) => {
       ];
     }
     
+    // Filtro de status: só aplicar quando o parâmetro 'ativo' for fornecido
     if (ativo !== undefined) {
-      where.ativo = ativo === 'true';
+      where.ativo = (ativo === 'true');
     }
     
     if (turma) {
@@ -183,6 +184,28 @@ const updateAluno = async (req, res) => {
       }
     }
 
+    // Normalizar campo 'ativo': converter strings para boolean e
+    // preservar valor atual se campo não vier no payload
+    if (Object.prototype.hasOwnProperty.call(updateData, 'ativo')) {
+      const v = updateData.ativo;
+      if (typeof v === 'string') {
+        const normalized = v.trim().toLowerCase();
+        updateData.ativo = (
+          normalized === 'true' ||
+          normalized === '1' ||
+          normalized === 'on' ||
+          normalized === 'yes' ||
+          normalized === 'sim' ||
+          normalized === 'matriculado'
+        );
+      } else {
+        updateData.ativo = Boolean(v);
+      }
+    } else {
+      // Não tocar no status quando não enviado
+      delete updateData.ativo;
+    }
+
     await aluno.update(updateData);
 
     res.json({
@@ -201,7 +224,7 @@ const updateAluno = async (req, res) => {
   }
 };
 
-// Excluir aluno (soft delete)
+// Excluir aluno (hard delete)
 const deleteAluno = async (req, res) => {
   try {
     const { id } = req.params;
@@ -214,8 +237,8 @@ const deleteAluno = async (req, res) => {
       });
     }
 
-    // Soft delete - apenas marcar como inativo
-    await aluno.update({ ativo: false });
+    // Hard delete - remover definitivamente
+    await aluno.destroy();
 
     res.json({
       message: 'Aluno removido com sucesso'

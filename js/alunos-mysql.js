@@ -125,13 +125,17 @@ async function loadAlunos() {
       `;
     });
 
-    // Inicializar DataTable
+    // Inicializar DataTable (sem o seletor "Show entries")
     dataTable = new DataTable('#alunosTable', {
       language: {
         url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/pt-BR.json'
       },
       responsive: true,
-      order: [[0, 'asc']]
+      order: [[0, 'asc']],
+      // Oculta o seletor de quantidade ("Show entries")
+      lengthChange: false,
+      // Remove o componente 'l' (length menu) do layout
+      dom: 'frtip'
     });
 
   } catch (error) {
@@ -221,9 +225,18 @@ async function saveAluno(event) {
   // Status
   const statusElement = document.getElementById('status');
   if (statusElement) {
-    alunoData.ativo = statusElement.value === 'matriculado';
+    const statusVal = (statusElement.value || '').toString().trim().toLowerCase();
+    if (statusVal === 'matriculado') {
+      alunoData.ativo = true;
+    } else if (statusVal === 'inativo') {
+      alunoData.ativo = false;
+    } else {
+      // Status não definido claramente: não enviar o campo para preservar valor atual
+      delete alunoData.ativo;
+    }
   } else {
-    alunoData.ativo = true; // Padrão ativo
+    // Sem campo de status no formulário: não enviar para que o backend preserve o valor
+    delete alunoData.ativo;
   }
 
   try {

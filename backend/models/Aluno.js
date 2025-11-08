@@ -170,8 +170,16 @@ module.exports = (sequelize) => {
         // Gerar número de matrícula automático se não fornecido
         if (!aluno.numero_matricula) {
           const ano = new Date().getFullYear();
-          const count = await Aluno.count() + 1;
-          aluno.numero_matricula = `${ano}${count.toString().padStart(4, '0')}`;
+          // Buscar o maior sequencial existente para o ano corrente
+          const [results] = await sequelize.query(
+            `SELECT MAX(CAST(SUBSTRING(numero_matricula, 5) AS UNSIGNED)) AS maxSeq
+             FROM alunos
+             WHERE numero_matricula LIKE :prefix`,
+            { replacements: { prefix: `${ano}%` } }
+          );
+          const maxSeq = (results && results[0] && results[0].maxSeq) ? parseInt(results[0].maxSeq, 10) : 0;
+          const nextSeq = (isNaN(maxSeq) ? 0 : maxSeq) + 1;
+          aluno.numero_matricula = `${ano}${nextSeq.toString().padStart(4, '0')}`;
         }
       }
     }
