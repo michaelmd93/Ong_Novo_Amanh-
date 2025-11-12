@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>Guia do Usuário - ONG Novo Amanhã</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="../css/config-styles.css" rel="stylesheet"/>
+    <link href="../css/global.css" rel="stylesheet"/>
+    <link href="../css/navbar.css" rel="stylesheet"/>
+    <link href="../css/themes.css" rel="stylesheet"/>
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            min-height: calc(100vh - 56px);
+            margin-top: 85px;
+            border: none;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow" style="background-color: var(--primary-color);">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" style="display: flex; align-items: center; gap: 10px;">
+                <i class="bi bi-box-seam"></i>
+                <span class="h5 mb-0" data-i18n="platform_name">Beta - Plataforma de Gestão</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="menu.html" class="btn btn-outline-light me-3">
+                    <i class="bi bi-house-door"></i>
+                    Início
+                </a>
+                <div class="dropdown">
+                <div class="user-profile" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="avatar" id="userAvatar">UT</div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName" data-i18n="user_name">Usuário</span>
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
+                    </div>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userProfileDropdown">
+                    <li>
+                        <div class="dropdown-header">
+                            <div class="avatar-small" id="userAvatarSmall">UT</div>
+                            <div class="header-info">
+                                <span class="header-name" id="userNameFull" data-i18n="user_full_name">Usuário</span>
+                                <span class="header-email" id="userEmail" data-i18n="user_email">usuario@email.com</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="perfil.html" title="Visualizar e editar seu perfil">
+                            <i class="bi bi-person-circle"></i>
+                            <div class="item-content">
+                                <span class="item-title" data-i18n="profile">Perfil</span>
+                                <span class="item-description" data-i18n="view_edit_profile">Visualizar e editar suas informações</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="configuracoes.html" title="Ajustar configurações do sistema">
+                            <i class="bi bi-gear"></i>
+                            <div class="item-content">
+                                <span class="item-title" data-i18n="settings">Configurações</span>
+                                <span class="item-description" data-i18n="customize_experience">Personalizar sua experiência</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item logout-item" href="javascript:void(0)" id="btnLogout" title="Sair do sistema">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <div class="item-content">
+                                <span class="item-title" data-i18n="logout">Sair</span>
+                                <span class="item-description" data-i18n="end_session">Encerrar sessão</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <embed src="../assets/ong-guia.pdf#toolbar=1&navpanes=1&scrollbar=1&view=FitH&bgcolor=FFFFFF&zoom=75" type="application/pdf" class="pdf-viewer">
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Translations -->
+    <script src="../js/translations.js"></script>
+    <!-- Settings Manager -->
+    <script src="../js/settings.js"></script>
+    <!-- Session Timeout -->
+    <script src="../js/session-timeout.js"></script>
+</body>
+</html>
