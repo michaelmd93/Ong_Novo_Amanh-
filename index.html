@@ -61,7 +61,7 @@
             </div>
 </form>
 </div>
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('loginForm');
             const senhaInput = document.getElementById('senha');
@@ -75,43 +75,7 @@
                 this.querySelector('i').classList.toggle('fa-eye');
                 this.querySelector('i').classList.toggle('fa-eye-slash');
             });
-
-            // Submit do formulário
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const button = this.querySelector('.btn-entrar');
-                const emailInput = document.getElementById('email');
-                const senhaInput = document.getElementById('senha');
-                
-                // Limpa mensagens anteriores
-                mensagemDiv.className = 'mensagem';
-                mensagemDiv.style.display = 'none';
-                
-                // Valida campos
-                if (!emailInput.value || !senhaInput.value) {
-                    mensagemDiv.textContent = 'Por favor, preencha todos os campos';
-                    mensagemDiv.className = 'mensagem erro';
-                    mensagemDiv.style.display = 'block';
-                    return;
-                }
-                
-                // Mostra loading
-                button.classList.add('loading');
-                button.disabled = true;
-
-                // Simulando validação (será substituído pelo backend real)
-                setTimeout(() => {
-                    // Simula autenticação bem-sucedida
-                    mensagemDiv.textContent = 'Login realizado com sucesso!';
-                    mensagemDiv.className = 'mensagem sucesso';
-                    mensagemDiv.style.display = 'block';
-                    
-                    // Redireciona após mensagem de sucesso
-                    setTimeout(() => {
-                        window.location.href = 'pages/menu.html';
-                    }, 500);
-                }, 1500);
-            });
+            // Nenhum listener de submit aqui; o js/login-mysql.js trata o envio do formulário
         });
     </script>
 </body>

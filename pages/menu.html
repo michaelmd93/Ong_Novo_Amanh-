@@ -273,10 +273,52 @@
     const userEmailElement = document.getElementById('userEmail');
     const userAvatarSmallElement = document.getElementById('userAvatarSmall');
 
-    // Verificar autenticação
-    document.addEventListener('DOMContentLoaded', () => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        
+    // Verificar autenticação com múltiplas fontes para evitar loop
+    document.addEventListener('DOMContentLoaded', async () => {
+        let user = null;
+        try {
+            user = JSON.parse(localStorage.getItem('user'));
+        } catch {}
+
+        // Se não há 'user', tente derivar de 'userData'
+        if (!user) {
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData'));
+                if (userData && userData.email) {
+                    user = {
+                        id: userData.id,
+                        email: userData.email,
+                        name: userData.nome || userData.email
+                    };
+                    localStorage.setItem('user', JSON.stringify(user));
+                }
+            } catch {}
+        }
+
+        // Se ainda não há 'user', mas há token, verificar no backend
+        if (!user) {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    const resp = await fetch('http://localhost:3003/api/auth/verify', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const u = data.user;
+                        user = { id: u.id, email: u.email, name: u.nome || u.email };
+                        localStorage.setItem('user', JSON.stringify(user));
+                    } else {
+                        // token inválido, limpar
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('userData');
+                    }
+                } catch (e) {
+                    // Falha de conexão: seguir para redirecionamento seguro abaixo
+                }
+            }
+        }
+
         if (!user) {
             console.log('Usuário não autenticado, redirecionando para login...');
             window.location.href = '../index.html';

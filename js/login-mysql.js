@@ -73,6 +73,12 @@ async function handleLogin(event) {
             // Login bem-sucedido
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('userData', JSON.stringify(data.user));
+            // Compatibilidade com pages/menu.html (que lê 'user')
+            localStorage.setItem('user', JSON.stringify({
+                id: data.user.id,
+                email: data.user.email,
+                name: data.user.nome || data.user.email
+            }));
             
             showMessage('Login realizado com sucesso!', 'success');
             

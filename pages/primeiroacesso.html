@@ -190,21 +190,45 @@
             });
 
             // Submit do formulário
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const button = this.querySelector('.btn-entrar');
                 button.classList.add('loading');
 
-                // Simulando validação
-                setTimeout(() => {
-                    // Simulando cadastro bem-sucedido
+                const API_BASE_URL = 'http://localhost:3003/api';
+
+                const payload = {
+                    nome: document.getElementById('nome').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    senha: document.getElementById('senha').value,
+                    telefone: document.getElementById('telefone').value.trim()
+                };
+
+                try {
+                    const resp = await fetch(`${API_BASE_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        throw new Error(data.error || 'Erro ao cadastrar');
+                    }
+
                     mensagemDiv.textContent = 'Cadastro realizado com sucesso! Redirecionando...';
                     mensagemDiv.className = 'mensagem sucesso';
-                    
+
                     setTimeout(() => {
                         window.location.href = '../index.html';
-                    }, 2000);
-                }, 1500);
+                    }, 1200);
+                } catch (err) {
+                    mensagemDiv.textContent = err.message || 'Erro no cadastro.';
+                    mensagemDiv.className = 'mensagem erro';
+                } finally {
+                    button.classList.remove('loading');
+                }
             });
         });
     </script>

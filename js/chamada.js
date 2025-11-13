@@ -4,6 +4,7 @@
 */
 
 /* ===================== CONFIG / KEYS / DEMO ===================== */
+const API_BASE_URL = 'http://localhost:3003/api';
 const KEYS = {
   SALAS: 'salas',
   ALUNOS: 'alunos',
@@ -101,9 +102,9 @@ const Storage = {
   },
 
   initDefaults() {
-    // alunos
+    // alunos: não usar DEMO automaticamente. Se não houver, manter vazio; App carregará da API.
     if (!localStorage.getItem(KEYS.ALUNOS)) {
-      localStorage.setItem(KEYS.ALUNOS, JSON.stringify(DEMO_ALUNOS));
+      localStorage.setItem(KEYS.ALUNOS, JSON.stringify([]));
     }
     // salas
     if (!localStorage.getItem(KEYS.SALAS)) {
@@ -510,22 +511,49 @@ const App = {
     currentChamada: null
   },
 
-  init() {
+  async init() {
     // initialize storage defaults
     Storage.initDefaults();
 
-    // hide main content and show loading momentarily
+    // show loading
     UI.showLoading(true);
 
     // bind events
     this.bindUIEvents();
 
-    // initial rendering after slight delay
-    setTimeout(() => {
-      UI.showLoading(false);
-      UI.showLayer('camada-lista');
-      UI.renderSalasList();
-    }, 250);
+    // carregar alunos reais da API
+    await this.loadAlunosReais();
+
+    // render após carregamento
+    UI.showLoading(false);
+    UI.showLayer('camada-lista');
+    UI.renderSalasList();
+  },
+
+  async loadAlunosReais() {
+    try {
+      const token = localStorage.getItem('authToken');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const url = `${API_BASE_URL}/alunos?limit=1000&ativo=true`;
+      const resp = await fetch(url, { headers });
+      if (!resp.ok) {
+        return; // manter vazio se falhar
+      }
+      const data = await resp.json();
+      const lista = Array.isArray(data.alunos) ? data.alunos : (Array.isArray(data) ? data : []);
+      const normalizado = lista.map(a => ({
+        id: String(a.id),
+        nome: a.nome,
+        matricula: a.numero_matricula || a.numeroMatricula || a.matricula || '',
+        status: a.ativo === false ? 'inativo' : 'matriculado'
+      }));
+      Storage._set(KEYS.ALUNOS, normalizado);
+    } catch (e) {
+      // em caso de erro de rede, manter lista atual
+      console.error('Falha ao carregar alunos da API', e);
+    }
   },
 
   bindUIEvents() {
