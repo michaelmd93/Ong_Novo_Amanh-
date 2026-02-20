@@ -7,6 +7,7 @@ module.exports = (sequelize) => {
       primaryKey: true,
       autoIncrement: true
     },
+
     // Dados do doador
     nome_doador: {
       type: DataTypes.STRING(150),
@@ -34,7 +35,7 @@ module.exports = (sequelize) => {
 
     // Informações da doação
     tipo: {
-      type: DataTypes.ENUM('alimentos', 'materiais_higiene', 'materiais_escolares', 'dinheiro', 'outros'),
+      type: DataTypes.ENUM('alimentos', 'vestuario', 'higiene', 'medicamentos', 'enxoval', 'dinheiro', 'outros'),
       allowNull: false
     },
     valor: {
@@ -42,6 +43,13 @@ module.exports = (sequelize) => {
       allowNull: true,
       validate: {
         min: 0
+      }
+    },
+    quantidade: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      validate: {
+        min: 1
       }
     },
     descricao_itens: {
@@ -53,9 +61,19 @@ module.exports = (sequelize) => {
       allowNull: true
     },
 
+    // Campos exclusivos para doações em dinheiro
+    forma_pagamento: {
+      type: DataTypes.ENUM('pix', 'transferencia', 'dinheiro', 'cartao'),
+      allowNull: true
+    },
+    comprovante: {
+      type: DataTypes.STRING(500),
+      allowNull: true
+    },
+
     // Status e datas
     status: {
-      type: DataTypes.ENUM('pendente', 'recebida', 'cancelada'),
+      type: DataTypes.ENUM('pendente', 'recebida', 'entregue', 'cancelada'),
       allowNull: false,
       defaultValue: 'pendente'
     },
@@ -65,6 +83,10 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW
     },
     data_recebimento: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    data_entrega: {
       type: DataTypes.DATEONLY,
       allowNull: true
     },
@@ -84,7 +106,7 @@ module.exports = (sequelize) => {
     }
   }, {
     tableName: 'doacoes',
-    paranoid: true // Habilita soft delete (deletedAt)
+    paranoid: true
   });
 
   return Doacao;

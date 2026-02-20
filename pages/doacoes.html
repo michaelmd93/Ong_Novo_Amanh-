@@ -15,18 +15,18 @@
 <link href="../css/cards.css" rel="stylesheet"/>
 <link href="../css/background-pattern.css" rel="stylesheet"/>
 <link href="../css/doacoes.css" rel="stylesheet"/>
-<!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Translations -->
 <script src="../js/translations.js"></script>
-<!-- Settings Manager -->
 <script src="../js/settings.js"></script>
-<!-- Navbar Centralizada -->
 <script src="../js/navbar.js"></script>
-<!-- Doações Manager -->
-<script src="../js/doacoes.js"></script>
+<!-- Módulos de Doações (ordem importa) -->
+<script src="../js/doacoes/api-service.js"></script>
+<script src="../js/doacoes/validation.js"></script>
+<script src="../js/doacoes/components.js"></script>
+<script src="../js/doacoes/app.js"></script>
 </head>
 <body>
+
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
     <div class="container">
@@ -39,14 +39,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="menu.html">
-                        <i class="bi bi-house me-1"></i>Início
-                    </a>
+                    <a class="nav-link" href="menu.html"><i class="bi bi-house me-1"></i>Início</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="doacoes.html">
-                        <i class="bi bi-gift me-1"></i>Doações
-                    </a>
+                    <a class="nav-link active" href="doacoes.html"><i class="bi bi-gift me-1"></i>Doações</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -69,17 +65,27 @@
     <!-- Cabeçalho -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                    <h1 class="h2 mb-2">
-                        <i class="bi bi-gift text-primary me-2"></i>
-                        Controle de Doações
+                    <h1 class="h2 mb-1">
+                        <i class="bi bi-gift text-primary me-2"></i>Controle de Doações
                     </h1>
                     <p class="text-muted mb-0">Gerencie todas as doações recebidas pela ONG</p>
                 </div>
-                <button id="btnNovaDoacao" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novaDoacaoModal">
-                    <i class="bi bi-plus-circle me-2"></i>Nova Doação
-                </button>
+                <div class="d-flex gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-download me-1"></i>Exportar
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="DoacoesApp.exportarExcel()"><i class="bi bi-file-earmark-excel me-2"></i>Excel (CSV)</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="DoacoesApp.exportarPDF()"><i class="bi bi-file-earmark-pdf me-2"></i>PDF (Imprimir)</a></li>
+                        </ul>
+                    </div>
+                    <button id="btnNovaDoacao" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novaDoacaoModal">
+                        <i class="bi bi-plus-circle me-2"></i>Nova Doação
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -88,9 +94,7 @@
     <div class="row mb-4 donation-stats">
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-gift"></i>
-                </div>
+                <div class="stat-icon bg-stat-total"><i class="bi bi-gift"></i></div>
                 <div>
                     <div class="stat-value" id="totalDoacoes">0</div>
                     <div class="stat-label">Total Doações</div>
@@ -99,9 +103,7 @@
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-cash"></i>
-                </div>
+                <div class="stat-icon bg-stat-dinheiro"><i class="bi bi-cash-coin"></i></div>
                 <div>
                     <div class="stat-value" id="totalDinheiro">R$ 0,00</div>
                     <div class="stat-label">Valor em Dinheiro</div>
@@ -110,9 +112,7 @@
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-box-seam"></i>
-                </div>
+                <div class="stat-icon bg-stat-itens"><i class="bi bi-box-seam"></i></div>
                 <div>
                     <div class="stat-value" id="totalItens">0</div>
                     <div class="stat-label">Itens Doados</div>
@@ -121,9 +121,7 @@
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-people"></i>
-                </div>
+                <div class="stat-icon bg-stat-doadores"><i class="bi bi-people"></i></div>
                 <div>
                     <div class="stat-value" id="totalDoadores">0</div>
                     <div class="stat-label">Doadores</div>
@@ -133,41 +131,44 @@
     </div>
 
     <!-- Filtros -->
-    <div class="card mb-4">
+    <div class="card mb-4 shadow-sm border-0">
         <div class="card-body">
-            <h5 class="card-title mb-3">
+            <h6 class="card-title mb-3">
                 <i class="bi bi-funnel me-2"></i>Filtros
-            </h5>
-            <div class="row g-3 donation-filters">
-                <div class="col-md-3">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Buscar doador ou descrição...">
+            </h6>
+            <div class="row g-2 donation-filters">
+                <div class="col-lg-3 col-md-6">
+                    <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Buscar doador ou descrição...">
                 </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="tipoFilter">
+                <div class="col-lg-2 col-md-3">
+                    <select class="form-select form-select-sm" id="tipoFilter">
                         <option value="">Todos os tipos</option>
-                        <option value="dinheiro">Dinheiro</option>
-                        <option value="alimento">Alimentos</option>
-                        <option value="material_escolar">Material escolar</option>
+                        <option value="alimentos">Alimentos</option>
+                        <option value="vestuario">Vestuário</option>
                         <option value="higiene">Higiene</option>
+                        <option value="medicamentos">Medicamentos</option>
+                        <option value="enxoval">Enxoval</option>
+                        <option value="dinheiro">Dinheiro</option>
                         <option value="outros">Outros</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <input type="date" class="form-control" id="dataFilter">
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="ordenacaoSelect">
-                        <option value="">Ordenar por</option>
-                        <option value="dataRecente">Data (mais recente)</option>
-                        <option value="dataAntiga">Data (mais antiga)</option>
-                        <option value="nomeAZ">Nome (A-Z)</option>
-                        <option value="nomeZA">Nome (Z-A)</option>
-                        <option value="valorMaior">Valor (maior)</option>
-                        <option value="valorMenor">Valor (menor)</option>
+                <div class="col-lg-2 col-md-3">
+                    <select class="form-select form-select-sm" id="statusFilter">
+                        <option value="">Todos os status</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="recebida">Recebida</option>
+                        <option value="entregue">Entregue</option>
+                        <option value="cancelada">Cancelada</option>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <button class="btn btn-outline-secondary w-100" id="limparFiltros">
+                <div class="col-lg-2 col-md-3">
+                    <input type="date" class="form-control form-control-sm" id="dataInicio" title="Data inicial">
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <input type="date" class="form-control form-control-sm" id="dataFim" title="Data final">
+                </div>
+                <div class="col-lg-1 col-md-3">
+                    <button class="btn btn-outline-secondary btn-sm w-100" id="limparFiltros" title="Limpar filtros">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
                 </div>
@@ -176,24 +177,26 @@
     </div>
 
     <!-- Tabela de Doações -->
-    <div class="card donation-table">
+    <div class="card shadow-sm border-0 donation-table">
         <div class="card-body">
-            <h5 class="card-title mb-3">
+            <h6 class="card-title mb-3">
                 <i class="bi bi-list-ul me-2"></i>Doações Registradas
-            </h5>
+                <small class="text-muted ms-2">(clique nos cabeçalhos para ordenar)</small>
+            </h6>
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th>Data</th>
-                            <th>Doador</th>
-                            <th>Tipo</th>
-                            <th>Valor / Itens</th>
+                            <th data-sort="data_doacao" class="sortable sort-desc">Data <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+                            <th data-sort="nome_doador" class="sortable">Doador <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+                            <th data-sort="tipo" class="sortable">Tipo <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+                            <th data-sort="valor" class="sortable">Valor / Itens <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+                            <th data-sort="status" class="sortable">Status <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+                            <th>Observações</th>
+                            <th id="thAcoes" class="text-center">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="doacoesTableBody">
-                        <!-- Doações serão carregadas aqui via JavaScript -->
-                    </tbody>
+                    <tbody id="doacoesTableBody"></tbody>
                 </table>
             </div>
             
@@ -209,7 +212,7 @@
 
 <!-- Modal Nova Doação -->
 <div class="modal fade" id="novaDoacaoModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-purple text-white">
                 <h5 class="modal-title">
@@ -219,47 +222,88 @@
             </div>
             <div class="modal-body">
                 <form id="doacaoForm">
-                    <div class="mb-3">
-                        <label for="doadorNome" class="form-label">Nome do Doador *</label>
-                        <input type="text" class="form-control" id="doadorNome" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="doacaoTipo" class="form-label">Tipo de Doação *</label>
-                        <select class="form-select" id="doacaoTipo" required>
-                            <option value="">Selecione...</option>
-                            <option value="dinheiro">Dinheiro</option>
-                            <option value="alimento">Alimentos</option>
-                            <option value="material_escolar">Material escolar</option>
-                            <option value="higiene">Produtos de higiene</option>
-                            <option value="outros">Outros</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3" id="valorField" style="display: none;">
-                        <label for="doacaoValor" class="form-label">Valor (R$) *</label>
-                        <input type="text" class="form-control" id="doacaoValor" placeholder="0,00">
-                    </div>
-                    
-                    <div class="mb-3" id="quantidadeField" style="display: none;">
-                        <label for="doacaoQuantidade" class="form-label">Quantidade *</label>
-                        <input type="number" class="form-control" id="doacaoQuantidade" min="1" placeholder="Ex: 10">
-                    </div>
-                    
-                    <div class="mb-3" id="descricaoField" style="display: none;">
-                        <label for="doacaoDescricao" class="form-label">Descrição dos Itens *</label>
-                        <textarea class="form-control" id="doacaoDescricao" rows="3" placeholder="Descreva os itens doados..."></textarea>
+                    <div class="row">
+                        <!-- Coluna Esquerda -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="doadorNome" class="form-label fw-semibold">Nome do Doador *</label>
+                                <input type="text" class="form-control" id="doadorNome" placeholder="Nome completo" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="doacaoTipo" class="form-label fw-semibold">Tipo de Doação *</label>
+                                <select class="form-select" id="doacaoTipo" required>
+                                    <option value="">Selecione o tipo...</option>
+                                    <option value="dinheiro">💰 Dinheiro</option>
+                                    <option value="alimentos">🍚 Alimentos</option>
+                                    <option value="vestuario">👕 Vestuário</option>
+                                    <option value="higiene">🧴 Higiene</option>
+                                    <option value="medicamentos">💊 Medicamentos</option>
+                                    <option value="enxoval">🍼 Enxoval</option>
+                                    <option value="outros">📦 Outros</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos para DINHEIRO -->
+                            <div class="mb-3" id="valorField" style="display: none;">
+                                <label for="doacaoValor" class="form-label fw-semibold">Valor (R$) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control" id="doacaoValor" placeholder="0,00">
+                                </div>
+                            </div>
+
+                            <div class="mb-3" id="pagamentoField" style="display: none;">
+                                <label for="formaPagamento" class="form-label fw-semibold">Forma de Pagamento *</label>
+                                <select class="form-select" id="formaPagamento">
+                                    <option value="">Selecione...</option>
+                                    <option value="pix">Pix</option>
+                                    <option value="transferencia">Transferência Bancária</option>
+                                    <option value="dinheiro">Dinheiro Físico</option>
+                                    <option value="cartao">Cartão</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3" id="comprovanteField" style="display: none;">
+                                <label for="doacaoComprovante" class="form-label fw-semibold">Comprovante (opcional)</label>
+                                <input type="file" class="form-control" id="doacaoComprovante" accept="image/*,.pdf">
+                                <div class="form-text">JPG, PNG, PDF - máx. 5MB</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Coluna Direita -->
+                        <div class="col-md-6">
+                            <!-- Campos para ITENS -->
+                            <div class="mb-3" id="quantidadeField" style="display: none;">
+                                <label for="doacaoQuantidade" class="form-label fw-semibold">Quantidade *</label>
+                                <input type="number" class="form-control" id="doacaoQuantidade" min="1" placeholder="Ex: 10">
+                            </div>
+
+                            <div class="mb-3" id="descricaoField" style="display: none;">
+                                <label for="doacaoDescricao" class="form-label fw-semibold">Descrição dos Itens *</label>
+                                <textarea class="form-control" id="doacaoDescricao" rows="3" placeholder="Ex: Pacotes de arroz 5kg, feijão 1kg..."></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="doacaoObservacoes" class="form-label fw-semibold">Observações (opcional)</label>
+                                <textarea class="form-control" id="doacaoObservacoes" rows="3" placeholder="Informações adicionais sobre a doação..."></textarea>
+                                <div class="form-text">Máximo 1000 caracteres</div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
                 <button type="button" class="btn btn-primary" id="salvarDoacao">
-                    <i class="bi bi-check-circle me-2"></i>Salvar Doação
+                    <i class="bi bi-check-circle me-1"></i>Salvar Doação
                 </button>
             </div>
         </div>
     </div>
 </div>
+
 </body>
 </html>

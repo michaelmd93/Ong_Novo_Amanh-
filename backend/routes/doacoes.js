@@ -1,10 +1,13 @@
 const express = require('express');
 const { body, param, query } = require('express-validator');
-const { authMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, requireRole } = require('../middleware/authMiddleware');
+const { uploadComprovante } = require('../middleware/uploadMiddleware');
 const {
   getDoacoes,
   createDoacao,
   confirmarDoacao,
+  entregarDoacao,
+  atualizarStatus,
   cancelarDoacao,
   getLixeira,
   restoreDoacao
@@ -12,21 +15,21 @@ const {
 
 const router = express.Router();
 
-const { requireRole } = require('../middleware/authMiddleware');
-
 // Rotas protegidas
 router.use(authMiddleware);
 
 // Rota de lixeira (admin)
 router.get('/lixeira', requireRole(['admin']), getLixeira);
 
-// Validações básicas para filtros
+// Validações para filtros (inclui intervalo de datas)
 const listValidation = [
   query('page').optional().isInt({ min: 1 }).toInt(),
-  query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
-  query('tipo').optional().isIn(['alimentos', 'materiais_higiene', 'materiais_escolares', 'dinheiro', 'outros']),
-  query('status').optional().isIn(['pendente', 'recebida', 'cancelada']),
-  query('data').optional().isISO8601()
+  query('limit').optional().isInt({ min: 1, max: 500 }).toInt(),
+  query('tipo').optional().isIn(['alimentos', 'vestuario', 'higiene', 'medicamentos', 'enxoval', 'dinheiro', 'outros']),
+  query('status').optional().isIn(['pendente', 'recebida', 'entregue', 'cancelada']),
+  query('data').optional().isISO8601(),
+  query('data_inicio').optional().isISO8601(),
+  query('data_fim').optional().isISO8601()
 ];
 
 // Validações para criação de doação
@@ -39,12 +42,24 @@ const doacaoValidation = [
     .isEmail()
     .withMessage('Email do doador inválido'),
   body('tipo')
-    .isIn(['alimentos', 'materiais_higiene', 'materiais_escolares', 'dinheiro', 'outros'])
+    .isIn(['alimentos', 'vestuario', 'higiene', 'medicamentos', 'enxoval', 'dinheiro', 'outros'])
     .withMessage('Tipo de doação inválido'),
   body('valor')
     .optional()
     .isFloat({ min: 0 })
-    .withMessage('Valor deve ser um número positivo')
+    .withMessage('Valor deve ser um número positivo'),
+  body('quantidade')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Quantidade deve ser um número inteiro positivo'),
+  body('forma_pagamento')
+    .optional()
+    .isIn(['pix', 'transferencia', 'dinheiro', 'cartao'])
+    .withMessage('Forma de pagamento inválida'),
+  body('observacoes')
+    .optional()
+    .isLength({ max: 1000 })
+    .withMessage('Observações devem ter no máximo 1000 caracteres')
 ];
 
 // Validação para ID
@@ -56,12 +71,25 @@ const idValidation = [
 
 // Rotas
 router.get('/', listValidation, getDoacoes);
-router.post('/', doacaoValidation, createDoacao);
+router.post('/', uploadComprovante.single('comprovante'), doacaoValidation, createDoacao);
+
+// Atualizar status genérico
+router.patch('/:id/status',
+  idValidation,
+  requireRole(['admin', 'secretaria']),
+  atualizarStatus
+);
 
 router.patch('/:id/confirmar', 
   idValidation, 
-  requireRole(['admin']), 
+  requireRole(['admin', 'secretaria']), 
   confirmarDoacao
+);
+
+router.patch('/:id/entregar',
+  idValidation,
+  requireRole(['admin', 'secretaria']),
+  entregarDoacao
 );
 
 router.patch('/:id/cancelar', 

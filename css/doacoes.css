@@ -1,59 +1,157 @@
-/* Estilos específicos para a página de Doações */
+/* ============================================
+   Estilos do Módulo de Doações - v2
+   ============================================ */
 
 :root {
   --doacoes-purple: #663399;
-  --doacoes-yellow: #FFE066;
+  --doacoes-purple-light: rgba(102, 51, 153, 0.08);
+  --doacoes-green: #198754;
+  --doacoes-blue: #0d6efd;
+  --doacoes-orange: #fd7e14;
+  --doacoes-red: #dc3545;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
 }
 
+/* ---- Cards de Estatísticas ---- */
 .donation-stats .stat-card {
   background: #ffffff;
-  border-radius: 15px;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.donation-stats .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .donation-stats .stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(102, 51, 153, 0.08);
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.donation-stats .stat-icon.bg-stat-total {
+  background: rgba(102, 51, 153, 0.1);
   color: var(--doacoes-purple);
-  font-size: 1.2rem;
+}
+
+.donation-stats .stat-icon.bg-stat-dinheiro {
+  background: rgba(25, 135, 84, 0.1);
+  color: var(--doacoes-green);
+}
+
+.donation-stats .stat-icon.bg-stat-itens {
+  background: rgba(13, 110, 253, 0.1);
+  color: var(--doacoes-blue);
+}
+
+.donation-stats .stat-icon.bg-stat-doadores {
+  background: rgba(253, 126, 20, 0.1);
+  color: var(--doacoes-orange);
 }
 
 .donation-stats .stat-value {
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: #212529;
 }
 
 .donation-stats .stat-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6c757d;
+  font-weight: 400;
 }
 
+/* ---- Filtros ---- */
 .donation-filters .form-select,
 .donation-filters .form-control {
-  min-width: 160px;
+  font-size: 0.875rem;
 }
 
+/* ---- Tabela ---- */
 .donation-table .table {
   margin-bottom: 0;
 }
 
 .donation-table .table thead th {
   border-bottom-width: 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #495057;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
+.donation-table .table tbody td {
+  font-size: 0.9rem;
+  vertical-align: middle;
+  padding: 0.75rem;
+}
+
+.donation-table .table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+/* ---- Headers clicáveis para ordenação ---- */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+th.sortable:hover {
+  color: var(--doacoes-purple);
+}
+
+th.sortable .sort-icon {
+  font-size: 0.7rem;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+th.sortable:hover .sort-icon {
+  opacity: 0.6;
+}
+
+th.sortable.sort-asc .sort-icon,
+th.sortable.sort-desc .sort-icon {
+  opacity: 1;
+  color: var(--doacoes-purple);
+}
+
+th.sortable.sort-asc .sort-icon::before {
+  content: "\F148" !important; /* bi-arrow-up */
+}
+
+th.sortable.sort-desc .sort-icon::before {
+  content: "\F128" !important; /* bi-arrow-down */
+}
+
+/* ---- Badges de Tipo ---- */
+.badge {
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  border-radius: 6px;
+}
+
+/* ---- Botões ---- */
 .btn-purple {
   background-color: var(--doacoes-purple);
   border-color: var(--doacoes-purple);
@@ -63,17 +161,109 @@ body {
 .btn-purple:hover {
   background-color: #552b80;
   border-color: #552b80;
+  color: #fff;
 }
 
 .modal-header.bg-purple {
   background-color: var(--doacoes-purple) !important;
 }
 
-/* Mensagens toast simples para validações de formulário */
+/* ---- Modal ---- */
+#novaDoacaoModal .modal-content {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+#novaDoacaoModal .modal-header {
+  border-bottom: none;
+  padding: 1.25rem 1.5rem;
+}
+
+#novaDoacaoModal .modal-body {
+  padding: 1.5rem;
+}
+
+#novaDoacaoModal .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+#novaDoacaoModal .form-text {
+  font-size: 0.75rem;
+}
+
+/* ---- Toast de Mensagens ---- */
 .doacoes-toast {
   position: fixed;
-  top: 20px;
+  top: 80px;
   right: 20px;
-  z-index: 1055;
-  min-width: 260px;
+  z-index: 1090;
+  min-width: 300px;
+  max-width: 420px;
+}
+
+.doacoes-toast .alert {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+/* ---- Dropdown de Ações ---- */
+.dropdown-menu {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dropdown-item {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+  border-radius: 6px;
+}
+
+/* ---- Estado Vazio ---- */
+#emptyState i {
+  color: #adb5bd;
+}
+
+/* ---- Botão Exportar ---- */
+.btn-outline-secondary {
+  border-radius: 8px;
+}
+
+/* ---- Cards e Filtros ---- */
+.card {
+  border-radius: 16px;
+}
+
+/* ---- Impressão ---- */
+@media print {
+  .navbar, .donation-filters, .btn, .dropdown, .doacoes-toast, #thAcoes {
+    display: none !important;
+  }
+  .container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+/* ---- Responsivo ---- */
+@media (max-width: 768px) {
+  .donation-stats .stat-card {
+    padding: 1rem;
+  }
+  .donation-stats .stat-value {
+    font-size: 1.1rem;
+  }
+  .d-flex.gap-2 {
+    flex-direction: column;
+  }
 }

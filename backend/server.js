@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 // Importar rotas
@@ -48,6 +49,9 @@ app.use(cors({
 // Middleware para parsing JSON
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Servir arquivos de upload estáticos
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rotas da API
 app.use('/api/auth', authRoutes);
