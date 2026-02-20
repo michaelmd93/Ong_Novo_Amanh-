@@ -34,7 +34,7 @@ const doacaoValidation = [
   body('nome_doador')
     .isLength({ min: 2, max: 150 })
     .withMessage('Nome do doador deve ter entre 2 e 150 caracteres'),
-  body('email_doador')
+  body('email')
     .optional()
     .isEmail()
     .withMessage('Email do doador inválido'),

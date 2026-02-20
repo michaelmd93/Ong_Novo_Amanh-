@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
         len: [2, 150]
       }
     },
-    email_doador: {
+    email: {
       type: DataTypes.STRING(150),
       allowNull: true,
       validate: {
@@ -60,16 +60,16 @@ module.exports = (sequelize) => {
       defaultValue: 'pendente'
     },
     data_doacao: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: DataTypes.NOW
     },
     data_recebimento: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
     data_cancelamento: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
 

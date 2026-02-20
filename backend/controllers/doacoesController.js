@@ -76,7 +76,7 @@ const createDoacao = async (req, res) => {
 
     const {
       nome_doador,
-      email_doador,
+      email,
       telefone_doador,
       documento_doador,
       tipo,
@@ -87,7 +87,7 @@ const createDoacao = async (req, res) => {
 
     const doacao = await Doacao.create({
       nome_doador,
-      email_doador,
+      email,
       telefone_doador,
       documento_doador,
       tipo,
